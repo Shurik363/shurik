@@ -1,0 +1,57 @@
+version: "3.3"
+
+services:
+  nginx:
+  # Пропишем какой образ мы хотим использовать
+        build:
+            context: .
+            dockerfile: ./docker/Nginx.Dockerfile
+  # Назовем свой контейнер по красивому
+        container_name: nginx_test
+  # Проброс портов
+        ports:
+            - 8098:80
+#            - 44398:443
+    # Проброс папок
+    #   volumes:
+    #        - ./Nginx/core:/etc/nginx/conf.d
+    #        - ./Nginx/www:/var/www/
+    #        - ./Nginx/Logs:/var/log/nginx/
+    #        - ./Nginx/html:/usr/share/nginx/html/
+    # Укажем зависимости
+        links:
+            - fpm
+        volumes:
+          - ./:/var/www/html
+  fpm:
+        build:
+            context: .
+            dockerfile: ./docker/Fpm.Dockerfile
+        container_name: web-server_test
+        volumes:
+            - ./:/var/www/html
+        working_dir: /var/www/html
+        links:
+            - mysql
+  mysql:
+        container_name: mysql_test
+        image: mysql:5.7
+        ports:
+            - 33061:3306
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=laravel1
+
+#  database:
+#        container_name: postgres_db
+#        image: postgres:12
+#        restart: always
+#        ports:
+#            - 5432:5432
+#        environment:
+#            POSTGRES_USER: postgres
+#            POSTGRES_PASSWORD: 12345678
+#        volumes:
+#            - ./:/var/lib/postgresql/data
+
+
